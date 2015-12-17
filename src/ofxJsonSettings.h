@@ -12,7 +12,8 @@
 #include "ofxJSON.h"
 
 // helper for shorter syntax
-#define Settings ofxJsonSettings
+class ofxJsonSettings;
+typedef ofxJsonSettings Settings;
 
 class ofxJsonSettings {
 public:
