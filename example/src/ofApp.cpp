@@ -50,9 +50,9 @@ void ofApp::setup(){
 
 	// Bind settings directly to a GUI that supports variable binding,
 	// like ofxUI or ofxDatGui
-	// gui->addSlider("X Position", Settings::getFloat("x-pos");
-	// gui->addSlider("Y Position", Settings::getFloat("y-pos");
-	// gui->addSlider("Size", Settings::getFloat("size");
+	// gui->addSlider("X Position", &Settings::getFloat("x-pos"));
+	// gui->addSlider("Y Position", &Settings::getFloat("y-pos"));
+	// gui->addSlider("Size", &Settings::getFloat("size"));
 }
 
 //--------------------------------------------------------------
