@@ -24,6 +24,13 @@ void ofApp::setup(){
 	heading.load(Settings::getString("fonts/heading/face"), Settings::getFloat("fonts/heading/size"));
 	body.load(Settings::getString("fonts/body/face"), Settings::getFloat("fonts/body/size"));
 
+	// Update or add a setting...
+	Settings::getFloat("x-pos") = 100;
+	Settings::getFloat("y-pos") = 100;
+	Settings::getFloat("size") = 50;
+	Settings::getFloat("object/x") = 10;
+	Settings::getFloat("object/y") = 20;
+
 	// By default, the delimiter is "/" but you can change it with...
 	// Settings::get().setDelimiter("|")
 
