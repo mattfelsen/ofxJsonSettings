@@ -37,6 +37,9 @@ public:
 	static int& getInt(string key);
 	static float& getFloat(string key);
 	static double& getDouble(string key);
+	static ofVec2f& getVec2(string key);
+	static ofVec3f& getVec3(string key);
+	static ofVec4f& getVec4(string key);
 
 	ofEvent<void> settingsLoaded;
 	ofEvent<void> settingsSaved;
@@ -47,12 +50,18 @@ protected:
 	int& _intVal(string& key);
 	float& _floatVal(string& key);
 	double& _doubleVal(string& key);
+	ofVec2f& _vec2Val(string& key);
+	ofVec3f& _vec3Val(string& key);
+	ofVec4f& _vec4Val(string& key);
 
 	string _stringValFromJson(ofxJSON& data, string& key);
 	bool _boolValFromJson(ofxJSON& data, string& key);
 	int _intValFromJson(ofxJSON& data, string& key);
 	float _floatValFromJson(ofxJSON& data, string& key);
 	double _doubleValFromJson(ofxJSON& data, string& key);
+	ofVec2f _vec2ValFromJson(ofxJSON& data, string& key);
+	ofVec3f _vec3ValFromJson(ofxJSON& data, string& key);
+	ofVec4f _vec4ValFromJson(ofxJSON& data, string& key);
 
 	ofxJSON getNestedChild(ofxJSON data, string key);
 	ofxJSON getNestedChild(ofxJSON data, vector<string> keys);
@@ -78,6 +87,9 @@ protected:
 	unordered_map<string,bool> boolMap;
 	unordered_map<string,float> floatMap;
 	unordered_map<string,double> doubleMap;
+	unordered_map<string,ofVec2f> vec2Map;
+	unordered_map<string,ofVec3f> vec3Map;
+	unordered_map<string,ofVec4f> vec4Map;
 
 	string delimiter;
 

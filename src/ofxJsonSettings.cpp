@@ -26,7 +26,8 @@ void ofxJsonSettings::load(string file) {
 		// inside various cached map objects, so we can't clear() the maps
 		// Instead, load new values from new json object to cached maps
 
-		// TODO any keys that were in the old json that have been removed from
+		// TODO: remove old keys when loading
+		// Any keys that were in the old json that have been removed from
 		// the new file won't be deleted from the cached maps. Need to compare
 		// jsonStore vs loadData objects and remove missing keys?
 		for (auto& it : stringMap) {
@@ -49,6 +50,18 @@ void ofxJsonSettings::load(string file) {
 			string key = it.first;
 			doubleMap[key] = _doubleValFromJson(jsonStore, key);
 		}
+		for (auto& it : vec2Map) {
+			string key = it.first;
+			vec2Map[key] = _vec2ValFromJson(jsonStore, key);
+		}
+		for (auto& it : vec3Map) {
+			string key = it.first;
+			vec3Map[key] = _vec3ValFromJson(jsonStore, key);
+		}
+		for (auto& it : vec4Map) {
+			string key = it.first;
+			vec4Map[key] = _vec4ValFromJson(jsonStore, key);
+		}
 
 		ofNotifyEvent(settingsLoaded);
 	} else {
@@ -63,6 +76,12 @@ void ofxJsonSettings::save(string file, bool prettyPrint) {
 	cacheToJson(intMap, jsonStore);
 	cacheToJson(floatMap, jsonStore);
 	cacheToJson(doubleMap, jsonStore);
+
+	// TODO: add support for ofVec types to cacheToJson
+	// Needs to conert from x/y/z/w to json array
+//	cacheToJson(vec2Map, jsonStore);
+//	cacheToJson(vec3Map, jsonStore);
+//	cacheToJson(vec4Map, jsonStore);
 
 	if (jsonStore.save(file, prettyPrint)) {
 		ofNotifyEvent(settingsSaved);
@@ -85,6 +104,15 @@ float& ofxJsonSettings::getFloat(string key) {
 }
 double& ofxJsonSettings::getDouble(string key) {
 	return get()._doubleVal(key);
+}
+ofVec2f& ofxJsonSettings::getVec2(string key) {
+	return get()._vec2Val(key);
+}
+ofVec3f& ofxJsonSettings::getVec3(string key) {
+	return get()._vec3Val(key);
+}
+ofVec4f& ofxJsonSettings::getVec4(string key) {
+	return get()._vec4Val(key);
 }
 
 string& ofxJsonSettings::_stringVal(string& key) {
@@ -130,6 +158,33 @@ double& ofxJsonSettings::_doubleVal(string& key) {
 
 //    printMap(doubleMap, "doubles");
 	return doubleMap[key];
+}
+
+ofVec2f& ofxJsonSettings::_vec2Val(string& key) {
+	if (!exists(vec2Map, key)) {
+		vec2Map[key] = _vec2ValFromJson(jsonStore, key);
+	}
+
+//    printMap(vec2Map, "vec2s");
+	return vec2Map[key];
+}
+
+ofVec3f& ofxJsonSettings::_vec3Val(string& key) {
+	if (!exists(vec3Map, key)) {
+		vec3Map[key] = _vec3ValFromJson(jsonStore, key);
+	}
+
+//    printMap(vec3Map, "vec3s");
+	return vec3Map[key];
+}
+
+ofVec4f& ofxJsonSettings::_vec4Val(string& key) {
+	if (!exists(vec4Map, key)) {
+		vec4Map[key] = _vec4ValFromJson(jsonStore, key);
+	}
+
+//    printMap(vec4Map, "vec4s");
+	return vec4Map[key];
 }
 
 string ofxJsonSettings::_stringValFromJson(ofxJSON& data, string& key) {
@@ -219,6 +274,75 @@ double ofxJsonSettings::_doubleValFromJson(ofxJSON& data, string& key) {
 		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
 		return 0;
 	}
+}
+
+ofVec2f ofxJsonSettings::_vec2ValFromJson(ofxJSON& data, string& key) {
+	// See _stringValFromJson() for explanation
+	ofVec2f vec;
+
+	try {
+		if (ofStringTimesInString(key, delimiter)) {
+			vec.x = getNestedChild(data, key)[0].asFloat();
+			vec.y = getNestedChild(data, key)[1].asFloat();
+		} else if (data.isMember(key)) {
+			vec.x = data[key][0].asFloat();
+			vec.y = data[key][1].asFloat();
+		} else {
+			ofLogWarning("Settings") << "no setting found for: " << key;
+		}
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+	}
+
+	return vec;
+}
+
+ofVec3f ofxJsonSettings::_vec3ValFromJson(ofxJSON& data, string& key) {
+	// See _stringValFromJson() for explanation
+	ofVec3f vec;
+
+	try {
+		if (ofStringTimesInString(key, delimiter)) {
+			vec.x = getNestedChild(data, key)[0].asFloat();
+			vec.y = getNestedChild(data, key)[1].asFloat();
+			vec.z = getNestedChild(data, key)[2].asFloat();
+		} else if (data.isMember(key)) {
+			vec.x = data[key][0].asFloat();
+			vec.y = data[key][1].asFloat();
+			vec.z = data[key][2].asFloat();
+		} else {
+			ofLogWarning("Settings") << "no setting found for: " << key;
+		}
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+	}
+
+	return vec;
+}
+
+ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
+	// See _stringValFromJson() for explanation
+	ofVec4f vec;
+
+	try {
+		if (ofStringTimesInString(key, delimiter)) {
+			vec.x = getNestedChild(data, key)[0].asFloat();
+			vec.y = getNestedChild(data, key)[1].asFloat();
+			vec.z = getNestedChild(data, key)[2].asFloat();
+			vec.w = getNestedChild(data, key)[3].asFloat();
+		} else if (data.isMember(key)) {
+			vec.x = data[key][0].asFloat();
+			vec.y = data[key][1].asFloat();
+			vec.z = data[key][2].asFloat();
+			vec.w = data[key][3].asFloat();
+		} else {
+			ofLogWarning("Settings") << "no setting found for: " << key;
+		}
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+	}
+
+	return vec;
 }
 
 ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, string key) {
