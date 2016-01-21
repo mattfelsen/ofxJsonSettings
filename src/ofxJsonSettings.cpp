@@ -125,7 +125,7 @@ float& ofxJsonSettings::_floatVal(string& key) {
 
 double& ofxJsonSettings::_doubleVal(string& key) {
 	if (!exists(doubleMap, key)) {
-		doubleMap[key] = _floatValFromJson(jsonStore, key);
+		doubleMap[key] = _doubleValFromJson(jsonStore, key);
 	}
 
 //    printMap(doubleMap, "doubles");
