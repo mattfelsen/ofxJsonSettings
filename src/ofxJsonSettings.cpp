@@ -349,7 +349,7 @@ ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
 bool ofxJsonSettings::_exists(string key) {
 	try {
 		if (ofStringTimesInString(key, delimiter))
-			return (getNestedChild(jsonStore, key) != ofxJSON());
+			return (getNestedChild(jsonStore, key, true) != ofxJSON());
 		else
 			return jsonStore.isMember(key);
 	} catch (const runtime_error& e) {
@@ -358,12 +358,12 @@ bool ofxJsonSettings::_exists(string key) {
 	}
 }
 
-ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, string key) {
+ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, string key, bool supressWarning) {
 	auto keys = ofSplitString(key, delimiter);
-	return getNestedChild(data, keys);
+	return getNestedChild(data, keys, supressWarning);
 }
 
-ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys) {
+ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys, bool supressWarning) {
 	// Given a lookup key like "fonts/face/serif", find the corresponding
 	// json object data["fonts"]["face"]["serif"]
 	// (The other signature of this function actually splits the string into a
@@ -373,9 +373,11 @@ ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys) {
 		keys.erase(keys.begin());
 
 		if (data.isMember(key)) {
-			return getNestedChild(data[key], keys);
+			return getNestedChild(data[key], keys, supressWarning);
 		} else {
-			ofLogWarning("Settings") << "no setting found for: " << key;
+			if (!supressWarning)
+				ofLogWarning("Settings") << "no setting found for: " << key;
+
 			return ofxJSON();
 		}
 	}

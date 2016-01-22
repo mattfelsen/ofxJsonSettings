@@ -68,8 +68,8 @@ protected:
 
 	bool _exists(string key);
 
-	ofxJSON getNestedChild(ofxJSON data, string key);
-	ofxJSON getNestedChild(ofxJSON data, vector<string> keys);
+	ofxJSON getNestedChild(ofxJSON data, string key, bool supressWarning = false);
+	ofxJSON getNestedChild(ofxJSON data, vector<string> keys, bool supressWarning = false);
 
 	template<typename T>
 	void setNestedChild(ofxJSON& data, string key, T val);
