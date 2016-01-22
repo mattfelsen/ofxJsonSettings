@@ -76,12 +76,9 @@ void ofxJsonSettings::save(string file, bool prettyPrint) {
 	cacheToJson(intMap, jsonStore);
 	cacheToJson(floatMap, jsonStore);
 	cacheToJson(doubleMap, jsonStore);
-
-	// TODO: add support for ofVec types to cacheToJson
-	// Needs to conert from x/y/z/w to json array
-//	cacheToJson(vec2Map, jsonStore);
-//	cacheToJson(vec3Map, jsonStore);
-//	cacheToJson(vec4Map, jsonStore);
+	cacheToJson(vec2Map, jsonStore);
+	cacheToJson(vec3Map, jsonStore);
+	cacheToJson(vec4Map, jsonStore);
 
 	if (jsonStore.save(file, prettyPrint)) {
 		ofNotifyEvent(settingsSaved);
@@ -430,6 +427,58 @@ void ofxJsonSettings::cacheToJson(T& container, ofxJSON& data) {
 		}
 	}
 }
+
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec2f>& container, ofxJSON& data) {
+	for (auto& it : container) {
+		string key = it.first;
+
+		ofxJSON array;
+		array.append(it.second.x);
+		array.append(it.second.y);
+
+		if (ofStringTimesInString(key, delimiter)) {
+			setNestedChild(data, key, array);
+		} else {
+			data[key] = array;
+		}
+	}
+}
+
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec3f>& container, ofxJSON& data) {
+	for (auto& it : container) {
+		string key = it.first;
+
+		ofxJSON array;
+		array.append(it.second.x);
+		array.append(it.second.y);
+		array.append(it.second.z);
+
+		if (ofStringTimesInString(key, delimiter)) {
+			setNestedChild(data, key, array);
+		} else {
+			data[key] = array;
+		}
+	}
+}
+
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec4f>& container, ofxJSON& data) {
+	for (auto& it : container) {
+		string key = it.first;
+
+		ofxJSON array;
+		array.append(it.second.x);
+		array.append(it.second.y);
+		array.append(it.second.z);
+		array.append(it.second.w);
+
+		if (ofStringTimesInString(key, delimiter)) {
+			setNestedChild(data, key, array);
+		} else {
+			data[key] = array;
+		}
+	}
+}
+
 
 template<typename T>
 bool ofxJsonSettings::exists(T& container, const string &key) {

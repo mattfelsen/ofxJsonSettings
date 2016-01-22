@@ -80,6 +80,10 @@ protected:
 	template<typename T>
 	void cacheToJson(T& container, ofxJSON& data);
 
+	void cacheToJson(unordered_map<string,ofVec2f>& container, ofxJSON& data);
+	void cacheToJson(unordered_map<string,ofVec3f>& container, ofxJSON& data);
+	void cacheToJson(unordered_map<string,ofVec4f>& container, ofxJSON& data);
+
 	template<typename T>
 	bool exists(T& container, const string &key);
 
