@@ -115,6 +115,10 @@ ofVec4f& ofxJsonSettings::getVec4(string key) {
 	return get()._vec4Val(key);
 }
 
+bool ofxJsonSettings::exists(string key) {
+	return get()._exists(key);
+}
+
 string& ofxJsonSettings::_stringVal(string& key) {
 	if (!exists(stringMap, key)) {
 		stringMap[key] = _stringValFromJson(jsonStore, key);
@@ -343,6 +347,18 @@ ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
 	}
 
 	return vec;
+}
+
+bool ofxJsonSettings::_exists(string key) {
+	try {
+		if (ofStringTimesInString(key, delimiter))
+			return (getNestedChild(jsonStore, key) != ofxJSON());
+		else
+			return jsonStore.isMember(key);
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+		return false;
+	}
 }
 
 ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, string key) {

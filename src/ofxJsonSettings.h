@@ -41,6 +41,9 @@ public:
 	static ofVec3f& getVec3(string key);
 	static ofVec4f& getVec4(string key);
 
+	// Use this to check if a key exists
+	static bool exists(string key);
+
 	ofEvent<void> settingsLoaded;
 	ofEvent<void> settingsSaved;
 
@@ -62,6 +65,8 @@ protected:
 	ofVec2f _vec2ValFromJson(ofxJSON& data, string& key);
 	ofVec3f _vec3ValFromJson(ofxJSON& data, string& key);
 	ofVec4f _vec4ValFromJson(ofxJSON& data, string& key);
+
+	bool _exists(string key);
 
 	ofxJSON getNestedChild(ofxJSON data, string key);
 	ofxJSON getNestedChild(ofxJSON data, vector<string> keys);
