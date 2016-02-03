@@ -40,6 +40,7 @@ public:
 	static ofVec2f& getVec2(string key);
 	static ofVec3f& getVec3(string key);
 	static ofVec4f& getVec4(string key);
+	static ofColor& getColor(string key);
 
 	// Use this to check if a key exists
 	static bool exists(string key);
@@ -56,6 +57,7 @@ protected:
 	ofVec2f& _vec2Val(string& key);
 	ofVec3f& _vec3Val(string& key);
 	ofVec4f& _vec4Val(string& key);
+	ofColor& _colorVal(string& key);
 
 	string _stringValFromJson(ofxJSON& data, string& key);
 	bool _boolValFromJson(ofxJSON& data, string& key);
@@ -65,6 +67,7 @@ protected:
 	ofVec2f _vec2ValFromJson(ofxJSON& data, string& key);
 	ofVec3f _vec3ValFromJson(ofxJSON& data, string& key);
 	ofVec4f _vec4ValFromJson(ofxJSON& data, string& key);
+	ofColor _colorValFromJson(ofxJSON& data, string& key);
 
 	bool _exists(string key);
 
@@ -83,6 +86,7 @@ protected:
 	void cacheToJson(unordered_map<string,ofVec2f>& container, ofxJSON& data);
 	void cacheToJson(unordered_map<string,ofVec3f>& container, ofxJSON& data);
 	void cacheToJson(unordered_map<string,ofVec4f>& container, ofxJSON& data);
+	void cacheToJson(unordered_map<string,ofColor>& container, ofxJSON& data);
 
 	template<typename T>
 	bool exists(T& container, const string &key);
@@ -99,6 +103,7 @@ protected:
 	unordered_map<string,ofVec2f> vec2Map;
 	unordered_map<string,ofVec3f> vec3Map;
 	unordered_map<string,ofVec4f> vec4Map;
+	unordered_map<string,ofColor> colorMap;
 
 	string delimiter;
 

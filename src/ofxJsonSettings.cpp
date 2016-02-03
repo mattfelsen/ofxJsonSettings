@@ -111,6 +111,9 @@ ofVec3f& ofxJsonSettings::getVec3(string key) {
 ofVec4f& ofxJsonSettings::getVec4(string key) {
 	return get()._vec4Val(key);
 }
+ofColor& ofxJsonSettings::getColor(string key) {
+	return get()._colorVal(key);
+}
 
 bool ofxJsonSettings::exists(string key) {
 	return get()._exists(key);
@@ -186,6 +189,15 @@ ofVec4f& ofxJsonSettings::_vec4Val(string& key) {
 
 //    printMap(vec4Map, "vec4s");
 	return vec4Map[key];
+}
+
+ofColor& ofxJsonSettings::_colorVal(string& key) {
+	if (!exists(colorMap, key)) {
+		colorMap[key] = _colorValFromJson(jsonStore, key);
+	}
+
+//    printMap(colorMap, "colors");
+	return colorMap[key];
 }
 
 string ofxJsonSettings::_stringValFromJson(ofxJSON& data, string& key) {
@@ -346,6 +358,29 @@ ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
 	return vec;
 }
 
+ofColor ofxJsonSettings::_colorValFromJson(ofxJSON& data, string& key) {
+	// See _stringValFromJson() for explanation
+	ofColor c;
+
+	try {
+		if (ofStringTimesInString(key, delimiter)) {
+			c.r = getNestedChild(data, key)[0].asFloat();
+			c.g = getNestedChild(data, key)[1].asFloat();
+			c.b = getNestedChild(data, key)[2].asFloat();
+		} else if (data.isMember(key)) {
+			c.r = data[key][0].asFloat();
+			c.g = data[key][1].asFloat();
+			c.b = data[key][2].asFloat();
+		} else {
+			ofLogWarning("Settings") << "no setting found for: " << key;
+		}
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+	}
+
+	return c;
+}
+
 bool ofxJsonSettings::_exists(string key) {
 	try {
 		if (ofStringTimesInString(key, delimiter))
@@ -481,6 +516,22 @@ void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec4f>& container, ofxJ
 	}
 }
 
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofColor>& container, ofxJSON& data) {
+	for (auto& it : container) {
+		string key = it.first;
+
+		ofxJSON array;
+		array.append(it.second.r);
+		array.append(it.second.g);
+		array.append(it.second.b);
+
+		if (ofStringTimesInString(key, delimiter)) {
+			setNestedChild(data, key, array);
+		} else {
+			data[key] = array;
+		}
+	}
+}
 
 template<typename T>
 bool ofxJsonSettings::exists(T& container, const string &key) {
