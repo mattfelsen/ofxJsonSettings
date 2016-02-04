@@ -62,6 +62,10 @@ void ofxJsonSettings::load(string file) {
 			string key = it.first;
 			vec4Map[key] = _vec4ValFromJson(jsonStore, key);
 		}
+		for (auto& it : colorMap) {
+			string key = it.first;
+			colorMap[key] = _colorValFromJson(jsonStore, key);
+		}
 
 		ofNotifyEvent(settingsLoaded);
 	} else {
@@ -79,6 +83,7 @@ void ofxJsonSettings::save(string file, bool prettyPrint) {
 	cacheToJson(vec2Map, jsonStore);
 	cacheToJson(vec3Map, jsonStore);
 	cacheToJson(vec4Map, jsonStore);
+	cacheToJson(colorMap, jsonStore);
 
 	if (jsonStore.save(file, prettyPrint)) {
 		ofNotifyEvent(settingsSaved);
