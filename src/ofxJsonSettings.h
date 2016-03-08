@@ -41,6 +41,7 @@ public:
 	static ofVec3f& getVec3(string key);
 	static ofVec4f& getVec4(string key);
 	static ofColor& getColor(string key);
+	static ofxJSON getJson(string key);
 
 	// Use this to check if a key exists
 	static bool exists(string key);
@@ -58,6 +59,7 @@ protected:
 	ofVec3f& _vec3Val(string& key);
 	ofVec4f& _vec4Val(string& key);
 	ofColor& _colorVal(string& key);
+	ofxJSON _jsonVal(string& key);
 
 	string _stringValFromJson(ofxJSON& data, string& key);
 	bool _boolValFromJson(ofxJSON& data, string& key);

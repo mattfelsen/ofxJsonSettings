@@ -119,6 +119,9 @@ ofVec4f& ofxJsonSettings::getVec4(string key) {
 ofColor& ofxJsonSettings::getColor(string key) {
 	return get()._colorVal(key);
 }
+ofxJSON ofxJsonSettings::getJson(string key) {
+	return get()._jsonVal(key);
+}
 
 bool ofxJsonSettings::exists(string key) {
 	return get()._exists(key);
@@ -203,6 +206,14 @@ ofColor& ofxJsonSettings::_colorVal(string& key) {
 
 //    printMap(colorMap, "colors");
 	return colorMap[key];
+}
+
+ofxJSON ofxJsonSettings::_jsonVal(string& key) {
+	if (ofStringTimesInString(key, delimiter)) {
+		return getNestedChild(jsonStore, key);
+	} else if (jsonStore.isMember(key)) {
+		return jsonStore[key];
+	}
 }
 
 string ofxJsonSettings::_stringValFromJson(ofxJSON& data, string& key) {
