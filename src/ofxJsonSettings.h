@@ -46,6 +46,8 @@ public:
 	// Use this to check if a key exists
 	static bool exists(string key);
 
+	static bool remove(string key);
+
 	ofEvent<void> settingsLoaded;
 	ofEvent<void> settingsSaved;
 
@@ -72,6 +74,7 @@ protected:
 	ofColor _colorValFromJson(ofxJSON& data, string& key);
 
 	bool _exists(string key);
+	bool _remove(string key);
 
 	ofxJSON getNestedChild(ofxJSON data, string key, bool supressWarning = false);
 	ofxJSON getNestedChild(ofxJSON data, vector<string> keys, bool supressWarning = false);

@@ -133,6 +133,10 @@ bool ofxJsonSettings::exists(string key) {
 	return get()._exists(key);
 }
 
+bool ofxJsonSettings::remove(string key) {
+	return get()._remove(key);
+}
+
 string& ofxJsonSettings::_stringVal(string& key) {
 	if (!exists(stringMap, key)) {
 		stringMap[key] = _stringValFromJson(jsonStore, key);
@@ -409,6 +413,29 @@ bool ofxJsonSettings::_exists(string key) {
 			return (getNestedChild(jsonStore, key, true) != ofxJSON());
 		else
 			return jsonStore.isMember(key);
+	} catch (const runtime_error& e) {
+		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
+		return false;
+	}
+}
+
+bool ofxJsonSettings::_remove(string key) {
+	try {
+		if (ofStringTimesInString(key, delimiter))
+			// TODO: removing non top-level data
+			ofLogWarning("Settings") << "remove() is only support on top-level (not nested) keys!";
+		else {
+			jsonStore.removeMember(key);
+			stringMap.erase(key);
+			intMap.erase(key);
+			boolMap.erase(key);
+			floatMap.erase(key);
+			doubleMap.erase(key);
+			vec2Map.erase(key);
+			vec3Map.erase(key);
+			vec4Map.erase(key);
+			colorMap.erase(key);
+		}
 	} catch (const runtime_error& e) {
 		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
 		return false;
