@@ -16,10 +16,11 @@ void ofxJsonSettings::setDelimiter(string delim) {
 	delimiter = delim;
 }
 
-void ofxJsonSettings::load(string file) {
+bool ofxJsonSettings::load(string file) {
 	ofxJSON loadData;
+	bool success = loadData.open(file);
 
-	if (loadData.open(file)) {
+	if (success) {
 		jsonStore = loadData;
 
 		// Any values bound to gui are bound to memory address of value
@@ -71,9 +72,11 @@ void ofxJsonSettings::load(string file) {
 	} else {
 		ofLogError("Settings") << "could not load file! " << file;
 	}
+
+	return success;
 }
 
-void ofxJsonSettings::save(string file, bool prettyPrint) {
+bool ofxJsonSettings::save(string file, bool prettyPrint) {
 	// Write cached values back to JSON object
 	cacheToJson(stringMap, jsonStore);
 	cacheToJson(boolMap, jsonStore);
@@ -84,12 +87,15 @@ void ofxJsonSettings::save(string file, bool prettyPrint) {
 	cacheToJson(vec3Map, jsonStore);
 	cacheToJson(vec4Map, jsonStore);
 	cacheToJson(colorMap, jsonStore);
+	bool success = jsonStore.save(file, prettyPrint);
 
-	if (jsonStore.save(file, prettyPrint)) {
+	if (success) {
 		ofNotifyEvent(settingsSaved);
 	} else {
 		ofLogError("Settings") << "could not save file! " << file;
 	}
+
+	return success;
 }
 
 string& ofxJsonSettings::getString(string key) {

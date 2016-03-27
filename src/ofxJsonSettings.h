@@ -26,8 +26,8 @@ public:
 	}
 
 	void setDelimiter(string delim);
-	void load(string file = "settings.json");
-	void save(string file = "settings.json", bool prettyPrint = true);
+	bool load(string file = "settings.json");
+	bool save(string file = "settings.json", bool prettyPrint = true);
 
 	// Use this to get values
 	// These return references, so you can bind directly to a GUI library that
