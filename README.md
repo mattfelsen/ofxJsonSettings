@@ -25,14 +25,15 @@ Include the header wherever you want to have the settings available. You don't n
 
 In your header file
 
-`#include ofxJsonSettings.h`
+`#include "ofxJsonSettings.h"`
 
 In your cpp file...
 
 #### Load
 
 ```
-// Use Settings::get() to get the singleton instance
+// Use Settings::get() to access the singleton instance
+// The load() and save() methods will use "settings.json" if you don't specify a filename
 Settings::get().load("data.json");
 ```
 
@@ -65,6 +66,23 @@ You can also get nested keys like so...
 ```
 heading.load(Settings::getString("fonts/heading/face"), Settings::getFloat("fonts/heading/size"));
 body.load(Settings::getString("fonts/body/face"), Settings::getFloat("fonts/body/size"));
+```
+
+Accessing nested keys as shown above will parse/save json as such:
+
+```
+{
+  "fonts" : {
+    "body" : {
+      "face": "font-body.ttf",
+      "size": 16
+    },
+    "heading" : {
+      "face": "font-heading.ttf",
+      "size": 32
+    }
+  }
+}
 ```
 
 #### Updating or adding a setting...
@@ -115,10 +133,12 @@ websocketClient.setup(host, port, reconnect)
 Bind settings directly to a GUI that supports variable binding, like ofxUI or ofxDatGui
 
 ```
-gui->addSlider("X Position", &Settings::getFloat("x-pos"));
-gui->addSlider("Y Position", &Settings::getFloat("y-pos"));
-gui->addSlider("Size", &Settings::getFloat("size"));
+gui->addSlider("X Position", Settings::getFloat("x-pos"));
+gui->addSlider("Y Position", Settings::getFloat("y-pos"));
+gui->addSlider("Size", Settings::getFloat("size"));
 ```
+
+If you're binding variables to a GUI, you'll want to load your settings file before setting up the GUI, and save back to a file on a button press or automatically when the app exits.
 
 ## Wait, why not just use ofxJSON directly?
 
@@ -134,3 +154,7 @@ This may be subjective, but I find it easier to type slashes rather than lots of
 
 - ofxJSON: `json["fonts"]["heading"]["face"].asString()`
 - ofxJsonSettings: `Settings::getString("fonts/heading/face")`
+ 
+### Global access
+
+This addon provides a singleton object so that you can access your settings from any file by including the `ofxJsonSettings.h` header file. This means you can do things like manage & manipulated GUI-bound settings in some top-level class (like ofApp) and have separate classes which can easily access those values. 
