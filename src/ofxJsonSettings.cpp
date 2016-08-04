@@ -23,6 +23,7 @@ bool ofxJsonSettings::load(string file) {
 	if (success) {
 		jsonStore = loadData;
 
+
 		// Any values bound to gui are bound to memory address of value
 		// inside various cached map objects, so we can't clear() the maps
 		// Instead, load new values from new json object to cached maps
@@ -96,6 +97,22 @@ bool ofxJsonSettings::save(string file, bool prettyPrint) {
 	}
 
 	return success;
+}
+
+string ofxJsonSettings::getAsJsonString(){
+
+	ofxJSON tempJson = jsonStore;
+	cacheToJson(stringMap, tempJson);
+	cacheToJson(boolMap, tempJson);
+	cacheToJson(intMap, tempJson);
+	cacheToJson(floatMap, tempJson);
+	cacheToJson(doubleMap, tempJson);
+	cacheToJson(vec2Map, tempJson);
+	cacheToJson(vec3Map, tempJson);
+	cacheToJson(vec4Map, tempJson);
+	cacheToJson(colorMap, tempJson);
+	string pretty = tempJson.getRawString(true);
+	return pretty;
 }
 
 string& ofxJsonSettings::getString(string key) {
