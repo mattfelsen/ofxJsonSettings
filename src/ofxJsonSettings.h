@@ -29,6 +29,8 @@ public:
 	bool load(string file = "settings.json");
 	bool save(string file = "settings.json", bool prettyPrint = true);
 
+	string getAsJsonString(); //in case you want to print / read
+
 	// Use this to get values
 	// These return references, so you can bind directly to a GUI library that
 	// supports variable binding
