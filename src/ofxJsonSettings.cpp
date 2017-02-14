@@ -17,8 +17,8 @@ void ofxJsonSettings::setDelimiter(string delim) {
 }
 
 bool ofxJsonSettings::load(string file) {
-	ofxJSON loadData;
-	bool success = loadData.open(file);
+	auto loadData = ofLoadJson(file);
+	bool success = !loadData.empty();
 
 	if (success) {
 		jsonStore = loadData;
@@ -88,7 +88,13 @@ bool ofxJsonSettings::save(string file, bool prettyPrint) {
 	cacheToJson(vec3Map, jsonStore);
 	cacheToJson(vec4Map, jsonStore);
 	cacheToJson(colorMap, jsonStore);
-	bool success = jsonStore.save(file, prettyPrint);
+
+	bool success;
+	if (prettyPrint)
+		success = ofSavePrettyJson(file, jsonStore);
+	else
+		success = ofSaveJson(file, jsonStore);
+
 
 	if (success) {
 		ofNotifyEvent(settingsSaved);
@@ -100,8 +106,7 @@ bool ofxJsonSettings::save(string file, bool prettyPrint) {
 }
 
 string ofxJsonSettings::getAsJsonString(){
-
-	ofxJSON tempJson = jsonStore;
+	ofJson tempJson = jsonStore;
 	cacheToJson(stringMap, tempJson);
 	cacheToJson(boolMap, tempJson);
 	cacheToJson(intMap, tempJson);
@@ -111,8 +116,7 @@ string ofxJsonSettings::getAsJsonString(){
 	cacheToJson(vec3Map, tempJson);
 	cacheToJson(vec4Map, tempJson);
 	cacheToJson(colorMap, tempJson);
-	string pretty = tempJson.getRawString(true);
-	return pretty;
+	return tempJson.dump(4);
 }
 
 string& ofxJsonSettings::getString(string key) {
@@ -142,7 +146,7 @@ ofVec4f& ofxJsonSettings::getVec4(string key) {
 ofColor& ofxJsonSettings::getColor(string key) {
 	return get()._colorVal(key);
 }
-ofxJSON ofxJsonSettings::getJson(string key) {
+ofJson ofxJsonSettings::getJson(string key) {
 	return get()._jsonVal(key);
 }
 
@@ -235,24 +239,24 @@ ofColor& ofxJsonSettings::_colorVal(string& key) {
 	return colorMap[key];
 }
 
-ofxJSON ofxJsonSettings::_jsonVal(string& key) {
+ofJson ofxJsonSettings::_jsonVal(string& key) {
 	if (ofStringTimesInString(key, delimiter)) {
 		return getNestedChild(jsonStore, key);
-	} else if (jsonStore.isMember(key)) {
+	} else if (jsonStore.find(key) != jsonStore.end()) {
 		return jsonStore[key];
 	}
 }
 
-string ofxJsonSettings::_stringValFromJson(ofxJSON& data, string& key) {
+string ofxJsonSettings::_stringValFromJson(ofJson& data, string& key) {
 	try {
 		// For keys like "fonts/face/serif", split the string and do a recursive
 		// lookup to find that json element
 		if (ofStringTimesInString(key, delimiter)) {
-			return getNestedChild(data, key).asString();
+			return getNestedChild(data, key).get<string>();
 		}
 		// Otherwise do a direct lookup if the key exists
-		else if (data.isMember(key)) {
-			return data[key].asString();
+		else if (data.find(key) != data.end()) {
+			return data[key].get<string>();
 		}
 		else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
@@ -264,13 +268,13 @@ string ofxJsonSettings::_stringValFromJson(ofxJSON& data, string& key) {
 	}
 }
 
-bool ofxJsonSettings::_boolValFromJson(ofxJSON& data, string& key) {
+bool ofxJsonSettings::_boolValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			return getNestedChild(data, key).asBool();
-		} else if (data.isMember(key)) {
-			return data[key].asBool();
+			return getNestedChild(data, key).get<bool>();
+		} else if (data.find(key) != data.end()) {
+			return data[key].get<bool>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 			return false;
@@ -281,13 +285,13 @@ bool ofxJsonSettings::_boolValFromJson(ofxJSON& data, string& key) {
 	}
 }
 
-int ofxJsonSettings::_intValFromJson(ofxJSON& data, string& key) {
+int ofxJsonSettings::_intValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			return getNestedChild(data, key).asInt();
-		} else if (data.isMember(key)) {
-			return data[key].asInt();
+			return getNestedChild(data, key).get<int>();
+		} else if (data.find(key) != data.end()) {
+			return data[key].get<int>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 			return 0;
@@ -298,13 +302,13 @@ int ofxJsonSettings::_intValFromJson(ofxJSON& data, string& key) {
 	}
 }
 
-float ofxJsonSettings::_floatValFromJson(ofxJSON& data, string& key) {
+float ofxJsonSettings::_floatValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			return getNestedChild(data, key).asFloat();
-		} else if (data.isMember(key)) {
-			return data[key].asFloat();
+			return getNestedChild(data, key).get<float>();
+		} else if (data.find(key) != data.end()) {
+			return data[key].get<float>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 			return 0;
@@ -315,13 +319,13 @@ float ofxJsonSettings::_floatValFromJson(ofxJSON& data, string& key) {
 	}
 }
 
-double ofxJsonSettings::_doubleValFromJson(ofxJSON& data, string& key) {
+double ofxJsonSettings::_doubleValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			return getNestedChild(data, key).asDouble();
-		} else if (data.isMember(key)) {
-			return data[key].asDouble();
+			return getNestedChild(data, key).get<double>();
+		} else if (data.find(key) != data.end()) {
+			return data[key].get<double>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 			return 0;
@@ -332,17 +336,17 @@ double ofxJsonSettings::_doubleValFromJson(ofxJSON& data, string& key) {
 	}
 }
 
-ofVec2f ofxJsonSettings::_vec2ValFromJson(ofxJSON& data, string& key) {
+ofVec2f ofxJsonSettings::_vec2ValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	ofVec2f vec;
 
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			vec.x = getNestedChild(data, key)[0].asFloat();
-			vec.y = getNestedChild(data, key)[1].asFloat();
-		} else if (data.isMember(key)) {
-			vec.x = data[key][0].asFloat();
-			vec.y = data[key][1].asFloat();
+			vec.x = getNestedChild(data, key)[0].get<float>();
+			vec.y = getNestedChild(data, key)[1].get<float>();
+		} else if (data.find(key) != data.end()) {
+			vec.x = data[key][0].get<float>();
+			vec.y = data[key][1].get<float>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 		}
@@ -353,19 +357,19 @@ ofVec2f ofxJsonSettings::_vec2ValFromJson(ofxJSON& data, string& key) {
 	return vec;
 }
 
-ofVec3f ofxJsonSettings::_vec3ValFromJson(ofxJSON& data, string& key) {
+ofVec3f ofxJsonSettings::_vec3ValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	ofVec3f vec;
 
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			vec.x = getNestedChild(data, key)[0].asFloat();
-			vec.y = getNestedChild(data, key)[1].asFloat();
-			vec.z = getNestedChild(data, key)[2].asFloat();
-		} else if (data.isMember(key)) {
-			vec.x = data[key][0].asFloat();
-			vec.y = data[key][1].asFloat();
-			vec.z = data[key][2].asFloat();
+			vec.x = getNestedChild(data, key)[0].get<float>();
+			vec.y = getNestedChild(data, key)[1].get<float>();
+			vec.z = getNestedChild(data, key)[2].get<float>();
+		} else if (data.find(key) != data.end()) {
+			vec.x = data[key][0].get<float>();
+			vec.y = data[key][1].get<float>();
+			vec.z = data[key][2].get<float>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 		}
@@ -376,21 +380,21 @@ ofVec3f ofxJsonSettings::_vec3ValFromJson(ofxJSON& data, string& key) {
 	return vec;
 }
 
-ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
+ofVec4f ofxJsonSettings::_vec4ValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	ofVec4f vec;
 
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			vec.x = getNestedChild(data, key)[0].asFloat();
-			vec.y = getNestedChild(data, key)[1].asFloat();
-			vec.z = getNestedChild(data, key)[2].asFloat();
-			vec.w = getNestedChild(data, key)[3].asFloat();
-		} else if (data.isMember(key)) {
-			vec.x = data[key][0].asFloat();
-			vec.y = data[key][1].asFloat();
-			vec.z = data[key][2].asFloat();
-			vec.w = data[key][3].asFloat();
+			vec.x = getNestedChild(data, key)[0].get<float>();
+			vec.y = getNestedChild(data, key)[1].get<float>();
+			vec.z = getNestedChild(data, key)[2].get<float>();
+			vec.w = getNestedChild(data, key)[3].get<float>();
+		} else if (data.find(key) != data.end()) {
+			vec.x = data[key][0].get<float>();
+			vec.y = data[key][1].get<float>();
+			vec.z = data[key][2].get<float>();
+			vec.w = data[key][3].get<float>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 		}
@@ -401,19 +405,19 @@ ofVec4f ofxJsonSettings::_vec4ValFromJson(ofxJSON& data, string& key) {
 	return vec;
 }
 
-ofColor ofxJsonSettings::_colorValFromJson(ofxJSON& data, string& key) {
+ofColor ofxJsonSettings::_colorValFromJson(ofJson& data, string& key) {
 	// See _stringValFromJson() for explanation
 	ofColor c;
 
 	try {
 		if (ofStringTimesInString(key, delimiter)) {
-			c.r = getNestedChild(data, key)[0].asFloat();
-			c.g = getNestedChild(data, key)[1].asFloat();
-			c.b = getNestedChild(data, key)[2].asFloat();
-		} else if (data.isMember(key)) {
-			c.r = data[key][0].asFloat();
-			c.g = data[key][1].asFloat();
-			c.b = data[key][2].asFloat();
+			c.r = getNestedChild(data, key)[0].get<char>();
+			c.g = getNestedChild(data, key)[1].get<char>();
+			c.b = getNestedChild(data, key)[2].get<char>();
+		} else if (data.find(key) != data.end()) {
+			c.r = data[key][0].get<char>();
+			c.g = data[key][1].get<char>();
+			c.b = data[key][2].get<char>();
 		} else {
 			ofLogWarning("Settings") << "no setting found for: " << key;
 		}
@@ -427,9 +431,9 @@ ofColor ofxJsonSettings::_colorValFromJson(ofxJSON& data, string& key) {
 bool ofxJsonSettings::_exists(string key) {
 	try {
 		if (ofStringTimesInString(key, delimiter))
-			return (getNestedChild(jsonStore, key, true) != ofxJSON());
+			return (getNestedChild(jsonStore, key, true) != ofJson());
 		else
-			return jsonStore.isMember(key);
+			return jsonStore.find(key) != jsonStore.end();
 	} catch (const runtime_error& e) {
 		ofLogError("Settings") << "error for key: " << key << ": " << e.what();
 		return false;
@@ -442,7 +446,7 @@ bool ofxJsonSettings::_remove(string key) {
 			// TODO: removing non top-level data
 			ofLogWarning("Settings") << "remove() is only support on top-level (not nested) keys!";
 		else {
-			jsonStore.removeMember(key);
+			jsonStore.erase(key);
 			stringMap.erase(key);
 			intMap.erase(key);
 			boolMap.erase(key);
@@ -459,12 +463,12 @@ bool ofxJsonSettings::_remove(string key) {
 	}
 }
 
-ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, string key, bool supressWarning) {
+ofJson ofxJsonSettings::getNestedChild(ofJson data, string key, bool supressWarning) {
 	auto keys = ofSplitString(key, delimiter);
 	return getNestedChild(data, keys, supressWarning);
 }
 
-ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys, bool supressWarning) {
+ofJson ofxJsonSettings::getNestedChild(ofJson data, vector<string> keys, bool supressWarning) {
 	// Given a lookup key like "fonts/face/serif", find the corresponding
 	// json object data["fonts"]["face"]["serif"]
 	// (The other signature of this function actually splits the string into a
@@ -473,13 +477,13 @@ ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys, bool 
 		string key = keys.front();
 		keys.erase(keys.begin());
 
-		if (data.isMember(key)) {
+		if (data.find(key) != data.end()) {
 			return getNestedChild(data[key], keys, supressWarning);
 		} else {
 			if (!supressWarning)
 				ofLogWarning("Settings") << "no setting found for: " << key;
 
-			return ofxJSON();
+			return ofJson();
 		}
 	}
 
@@ -487,13 +491,13 @@ ofxJSON ofxJsonSettings::getNestedChild(ofxJSON data, vector<string> keys, bool 
 }
 
 template<typename T>
-void ofxJsonSettings::setNestedChild(ofxJSON& data, string key, T val) {
+void ofxJsonSettings::setNestedChild(ofJson& data, string key, T val) {
 	auto keys = ofSplitString(key, delimiter);
 	setNestedChild(data, keys, val);
 }
 
 template<typename T>
-void ofxJsonSettings::setNestedChild(ofxJSON& data, vector<string> keys, T val) {
+void ofxJsonSettings::setNestedChild(ofJson& data, vector<string> keys, T val) {
 	// Given a lookup key like "fonts/face/serif", find the corresponding
 	// json object data["fonts"]["face"]["serif"] and set its value
 	// (The other signature of this function actually splits the string into a
@@ -514,13 +518,13 @@ void ofxJsonSettings::setNestedChild(ofxJSON& data, vector<string> keys, T val) 
 			return;
 		} else {
 			keys.erase(keys.begin());
-			object = (ofxJSON *) &(*object)[key];
+			object = (ofJson *) &(*object)[key];
 		}
 	}
 }
 
 template<typename T>
-void ofxJsonSettings::cacheToJson(T& container, ofxJSON& data) {
+void ofxJsonSettings::cacheToJson(T& container, ofJson& data) {
 	for (auto& it : container) {
 		string key = it.first;
 		if (ofStringTimesInString(key, delimiter)) {
@@ -531,13 +535,13 @@ void ofxJsonSettings::cacheToJson(T& container, ofxJSON& data) {
 	}
 }
 
-void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec2f>& container, ofxJSON& data) {
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec2f>& container, ofJson& data) {
 	for (auto& it : container) {
 		string key = it.first;
 
-		ofxJSON array;
-		array.append(it.second.x);
-		array.append(it.second.y);
+		ofJson array;
+		array.push_back(it.second.x);
+		array.push_back(it.second.y);
 
 		if (ofStringTimesInString(key, delimiter)) {
 			setNestedChild(data, key, array);
@@ -547,14 +551,14 @@ void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec2f>& container, ofxJ
 	}
 }
 
-void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec3f>& container, ofxJSON& data) {
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec3f>& container, ofJson& data) {
 	for (auto& it : container) {
 		string key = it.first;
 
-		ofxJSON array;
-		array.append(it.second.x);
-		array.append(it.second.y);
-		array.append(it.second.z);
+		ofJson array;
+		array.push_back(it.second.x);
+		array.push_back(it.second.y);
+		array.push_back(it.second.z);
 
 		if (ofStringTimesInString(key, delimiter)) {
 			setNestedChild(data, key, array);
@@ -564,15 +568,15 @@ void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec3f>& container, ofxJ
 	}
 }
 
-void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec4f>& container, ofxJSON& data) {
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec4f>& container, ofJson& data) {
 	for (auto& it : container) {
 		string key = it.first;
 
-		ofxJSON array;
-		array.append(it.second.x);
-		array.append(it.second.y);
-		array.append(it.second.z);
-		array.append(it.second.w);
+		ofJson array;
+		array.push_back(it.second.x);
+		array.push_back(it.second.y);
+		array.push_back(it.second.z);
+		array.push_back(it.second.w);
 
 		if (ofStringTimesInString(key, delimiter)) {
 			setNestedChild(data, key, array);
@@ -582,14 +586,14 @@ void ofxJsonSettings::cacheToJson(unordered_map<string,ofVec4f>& container, ofxJ
 	}
 }
 
-void ofxJsonSettings::cacheToJson(unordered_map<string,ofColor>& container, ofxJSON& data) {
+void ofxJsonSettings::cacheToJson(unordered_map<string,ofColor>& container, ofJson& data) {
 	for (auto& it : container) {
 		string key = it.first;
 
-		ofxJSON array;
-		array.append(it.second.r);
-		array.append(it.second.g);
-		array.append(it.second.b);
+		ofJson array;
+		array.push_back(it.second.r);
+		array.push_back(it.second.g);
+		array.push_back(it.second.b);
 
 		if (ofStringTimesInString(key, delimiter)) {
 			setNestedChild(data, key, array);

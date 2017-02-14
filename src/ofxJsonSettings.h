@@ -9,7 +9,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxJSON.h"
 
 // helper for shorter syntax
 class ofxJsonSettings;
@@ -43,7 +42,7 @@ public:
 	static ofVec3f& getVec3(string key);
 	static ofVec4f& getVec4(string key);
 	static ofColor& getColor(string key);
-	static ofxJSON getJson(string key);
+	static ofJson getJson(string key);
 
 	// Use this to check if a key exists
 	static bool exists(string key);
@@ -63,37 +62,37 @@ protected:
 	ofVec3f& _vec3Val(string& key);
 	ofVec4f& _vec4Val(string& key);
 	ofColor& _colorVal(string& key);
-	ofxJSON _jsonVal(string& key);
+	ofJson _jsonVal(string& key);
 
-	string _stringValFromJson(ofxJSON& data, string& key);
-	bool _boolValFromJson(ofxJSON& data, string& key);
-	int _intValFromJson(ofxJSON& data, string& key);
-	float _floatValFromJson(ofxJSON& data, string& key);
-	double _doubleValFromJson(ofxJSON& data, string& key);
-	ofVec2f _vec2ValFromJson(ofxJSON& data, string& key);
-	ofVec3f _vec3ValFromJson(ofxJSON& data, string& key);
-	ofVec4f _vec4ValFromJson(ofxJSON& data, string& key);
-	ofColor _colorValFromJson(ofxJSON& data, string& key);
+	string _stringValFromJson(ofJson& data, string& key);
+	bool _boolValFromJson(ofJson& data, string& key);
+	int _intValFromJson(ofJson& data, string& key);
+	float _floatValFromJson(ofJson& data, string& key);
+	double _doubleValFromJson(ofJson& data, string& key);
+	ofVec2f _vec2ValFromJson(ofJson& data, string& key);
+	ofVec3f _vec3ValFromJson(ofJson& data, string& key);
+	ofVec4f _vec4ValFromJson(ofJson& data, string& key);
+	ofColor _colorValFromJson(ofJson& data, string& key);
 
 	bool _exists(string key);
 	bool _remove(string key);
 
-	ofxJSON getNestedChild(ofxJSON data, string key, bool supressWarning = false);
-	ofxJSON getNestedChild(ofxJSON data, vector<string> keys, bool supressWarning = false);
+	ofJson getNestedChild(ofJson data, string key, bool supressWarning = false);
+	ofJson getNestedChild(ofJson data, vector<string> keys, bool supressWarning = false);
 
 	template<typename T>
-	void setNestedChild(ofxJSON& data, string key, T val);
+	void setNestedChild(ofJson& data, string key, T val);
 
 	template<typename T>
-	void setNestedChild(ofxJSON& data, vector<string> keys, T val);
+	void setNestedChild(ofJson& data, vector<string> keys, T val);
 
 	template<typename T>
-	void cacheToJson(T& container, ofxJSON& data);
+	void cacheToJson(T& container, ofJson& data);
 
-	void cacheToJson(unordered_map<string,ofVec2f>& container, ofxJSON& data);
-	void cacheToJson(unordered_map<string,ofVec3f>& container, ofxJSON& data);
-	void cacheToJson(unordered_map<string,ofVec4f>& container, ofxJSON& data);
-	void cacheToJson(unordered_map<string,ofColor>& container, ofxJSON& data);
+	void cacheToJson(unordered_map<string,ofVec2f>& container, ofJson& data);
+	void cacheToJson(unordered_map<string,ofVec3f>& container, ofJson& data);
+	void cacheToJson(unordered_map<string,ofVec4f>& container, ofJson& data);
+	void cacheToJson(unordered_map<string,ofColor>& container, ofJson& data);
 
 	template<typename T>
 	bool exists(T& container, const string &key);
@@ -101,7 +100,7 @@ protected:
 	template<typename T>
 	void printMap(T& container, const string& text = "");
 
-	ofxJSON jsonStore;
+	ofJson jsonStore;
 	unordered_map<string,string> stringMap;
 	unordered_map<string,int> intMap;
 	unordered_map<string,bool> boolMap;
